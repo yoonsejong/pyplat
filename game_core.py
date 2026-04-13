@@ -45,6 +45,7 @@ class GameMain(arcade.Window):
 
         self.isGameClear = False
         self.isGameOver = False
+        self.isGamePlaying = True
 
         # setup grid cells
         self.plat_grid = []
@@ -74,7 +75,7 @@ class GameMain(arcade.Window):
 
     def get_game_state(self):
         return self.move_grid, self.kill_grid, \
-               self.isGameClear, self.isGameOver, self.current_stage, self.time_limit, \
+               self.isGameClear, self.isGameOver, self.isGamePlaying, self.current_stage, self.time_limit, \
                self.total_score, self.total_time, self.total_life, self.tanuki_r, self.tanuki_c
 
     def replay(self, replay_file_name=""):
@@ -228,14 +229,14 @@ class GameMain(arcade.Window):
 
         # This command should happen before we start drawing. It will clear
         # the screen to the background color, and erase what we drew last frame.
-        arcade.start_render()
+        self.clear()
 
         # Call draw() on all your sprite lists below
         if not (self.isGameClear or self.isGameOver):
             self.all_sprites_list.draw()
             if not self.isDisableEnemy:
                 self.all_enemy_sprites_list.draw()
-            self.tanuki.draw()
+            arcade.draw_sprite(self.tanuki)
 
         # calc minutes
         minutes = int(self.total_time) // 60
@@ -271,7 +272,7 @@ class GameMain(arcade.Window):
         self.rendering_time = timeit.default_timer() - start_time
 
     # MAIN UPDATE (GAME LOGIC) METHOD
-    def update(self, delta_time):
+    def on_update(self, delta_time):
         # if game cleared or game over, no update needed; otherwise, check if game is over
         if self.isGameClear or self.isGameOver:
             return
@@ -442,6 +443,8 @@ class GameMain(arcade.Window):
             x = t.timetuple()
             filename = f"ss_{x[0]:04d}-{x[1]:02d}-{x[2]:02d}_{x[3]:02d}-{x[4]:02d}-{x[5]:02d}.png"
             pyglet.image.get_buffer_manager().get_color_buffer().save('screenshot/' + filename)
+        elif key == arcade.key.Q:
+            self.isGamePlaying = False
         elif self.tanuki.isJumping or self.tanuki.isDying:
             return  # nothing can be done
         elif self.tanuki.isGoingUpDown:
@@ -501,4 +504,8 @@ class GameMain(arcade.Window):
 
     def on_mouse_release(self, x, y, button, key_modifiers):
         pass
+
+    def on_close(self):
+        self.isGamePlaying = False
+        super().on_close()
 

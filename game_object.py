@@ -9,7 +9,7 @@ class DeltaTimeSpriteList(arcade.SpriteList):
         super().__init__()
 
     def update(self, delta_time):
-        for sprite in self.sprite_list:
+        for sprite in self:
             sprite.update(delta_time)
 
 
@@ -27,13 +27,13 @@ class GameObject(arcade.Sprite):
         self.recalculate_position()
 
     def recalculate_position(self):
-        self.set_position(gc.GRID_W * self.gridC + gc.GRID_W / 2,
-                          gc.GRID_H * (gc.ROW_COUNT - self.gridR) + gc.GRID_H / 2)
+        self.position = (gc.GRID_W * self.gridC + gc.GRID_W / 2,
+                         gc.GRID_H * (gc.ROW_COUNT - self.gridR) + gc.GRID_H / 2)
 
     def get_gridRC(self):
         return self.gridR, self.gridC
 
-    def update(self):
+    def update(self, delta_time=0):
         pass
 
 
@@ -45,7 +45,7 @@ class Platform(GameObject):
         self.texture = arcade.load_texture(gd.data_path + file_name)
         self.set_gridRC(r, c)
 
-    def update(self):
+    def update(self, delta_time=0):
         pass
 
 
@@ -61,7 +61,7 @@ class Item(GameObject):
 
         self.set_gridRC(r, c)
 
-    def update(self):
+    def update(self, delta_time=0):
         if self.isActive:
             self.texture = self.texture_avail
         else:
@@ -108,7 +108,7 @@ class Tanuki(GameObject):
         self.ateSmallBonus = False
         self.ateBigBonus = False
 
-    def update(self):
+    def update(self, delta_time=0):
         if self.ateSmallBonus:
             if self.isGoingLeft:
                 self.texture = self.texture_al

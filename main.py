@@ -33,13 +33,14 @@ class Agent(threading.Thread):
     #############################################################
     def ai_function(self):
         # To send a key stroke to the game, use self.game.on_key_press() method
-        pass
+        return
 
     def run(self):
         print("Starting " + self.name)
 
         os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (50+320, 50)
-        pygame.init()
+        if self.show_grid_info:
+            pygame.init()
 
         # Prepare grid information display (can be turned off if performance issue exists)
         if self.show_grid_info:
@@ -51,7 +52,7 @@ class Agent(threading.Thread):
             arr = pygame.PixelArray(backscreen)
         else:
             time.sleep(0.5)  # wait briefly so that main game can get ready
-
+            
         # roughly every 50 milliseconds, retrieve game state (average human response time for visual stimuli = 25 ms)
         go = True
         while go and (self.game is not []):
@@ -61,10 +62,13 @@ class Agent(threading.Thread):
                     if event.type == pygame.QUIT:
                         go = False
                         break
+                        
+            if self.game is []:
+                break
 
             # RETRIEVE CURRENT GAME STATE
             self.move_grid, self.kill_grid, \
-                self.isGameClear, self.isGameOver, self.current_stage, self.time_limit, \
+                self.isGameClear, self.isGameOver, go, self.current_stage, self.time_limit, \
                 self.total_score, self.total_time, self.total_life, self.tanuki_r, self.tanuki_c \
                 = self.game.get_game_state()
 
@@ -93,8 +97,7 @@ class Agent(threading.Thread):
 
 
 def main():
-    ag = Agent(1, "My Agent", 1, True)
-    ag.start()
+    ag = Agent(1, "My Agent", 1, False)
 
     ag.game = game_core.GameMain()
     ag.game.set_location(50, 50)
@@ -105,9 +108,11 @@ def main():
 
     # Uncomment below to replay recorded play
     # ag.game.isReplaying = True
-    # ag.game.replay('replay_clear.rpy')
+    # ag.game.replay('replay.rpy')
 
     ag.game.reset()
+    ag.daemon = True
+    ag.start()
     arcade.run()
 
 
