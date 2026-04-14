@@ -22,7 +22,7 @@ A flexible platform game project based on Python 3 clone of Bong Bong (1989)
 ## How to Use
 * Just run main.py either from command line or within [PyCharm IDE](https://www.jetbrains.com/pycharm/) (recommended).
 * To see how to play the game, uncomment lines 104-105 in main.py and watch my replay of the game. You can also watch a walkthrough play of the original 1989 version (with the addicting sound effect) on [Youtube](https://www.youtube.com/watch?v=OAzhfe4VBBc).
-* To record a play, uncomment lines 100-101 in main.py. Make sure you comment out lines 104-105 since you can't both record and replay.
+* To record a play, uncomment lines 98-99 in main.py. Make sure you comment out lines 102-103 since you can't both record and replay.
 * Control
   * Left / Right: Moves left/right
   * Up / Down: Moves up/down the ladder
