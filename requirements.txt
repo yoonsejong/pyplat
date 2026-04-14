@@ -1,0 +1,2 @@
+arcade==3.3.3
+pygame-ce==2.5.7

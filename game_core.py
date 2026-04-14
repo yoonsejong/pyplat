@@ -3,6 +3,7 @@ import game_object as gobj
 import game_data as gd
 import pyglet
 import timeit
+import time
 from datetime import datetime
 
 ROW_COUNT = 12
@@ -46,6 +47,13 @@ class GameMain(arcade.Window):
         self.isGameClear = False
         self.isGameOver = False
         self.isGamePlaying = True
+        self.show_grid_display = False
+
+        # Text objects (arcade.Text is far faster than draw_text each frame)
+        self.text_elapsed  = arcade.Text("", 0, 224, arcade.color.WHITE, 10)
+        self.text_timelive = arcade.Text("", 0, 208, arcade.color.WHITE, 10)
+        self.text_score    = arcade.Text("", 0, 14,  arcade.color.WHITE, 10)
+        self.text_fps      = arcade.Text("", 0, 0,   arcade.color.WHITE, 10)
 
         # setup grid cells
         self.plat_grid = []
@@ -244,30 +252,31 @@ class GameMain(arcade.Window):
         seconds = int(self.total_time) % 60
         # prepare output
         if self.isGameClear:
-            output = f"Total Elapsed Time: {minutes:02d}:{seconds:02d} (GAME CLEAR)"
+            self.text_elapsed.text = f"Total Elapsed Time: {minutes:02d}:{seconds:02d} (GAME CLEAR)"
         elif self.isGameOver:
-            output = f"Total Elapsed Time: {minutes:02d}:{seconds:02d} (GAME OVER)"
+            self.text_elapsed.text = f"Total Elapsed Time: {minutes:02d}:{seconds:02d} (GAME OVER)"
         else:
-            output = f"Elapsed Time: {minutes:02d}:{seconds:02d}"
-        arcade.draw_text(output, 0, 224, arcade.color.WHITE, 10)
+            self.text_elapsed.text = f"Elapsed Time: {minutes:02d}:{seconds:02d}"
+        self.text_elapsed.draw()
 
         # output timer
         if not (self.isGameClear or self.isGameOver):
             seconds = int(self.time_limit)
             life = int(self.total_life)
-            output = f"TIME: {seconds:03d} / LIFE: {life:01d}"
-            arcade.draw_text(output, 0, 208, arcade.color.WHITE, 10)
+            self.text_timelive.text = f"TIME: {seconds:03d} / LIFE: {life:01d}"
+        else:
+            self.text_timelive.text = ""
+        self.text_timelive.draw()
 
         # Score
-        score = int(self.total_score)
-        output = f"Total Score: {score:06d}"
-        arcade.draw_text(output, 0, 14, arcade.color.WHITE, 10)
+        self.text_score.text = f"Total Score: {int(self.total_score):06d}"
+        self.text_score.draw()
 
         # FPS
         fps = 1.0 / (self.proc_time + self.rendering_time)
-        output = \
+        self.text_fps.text = \
             f"Proc Time: {self.proc_time:.3f} / Draw Time: {self.rendering_time:.3f} / FPS: {fps:3.1f}"
-        arcade.draw_text(output, 0, 0, arcade.color.WHITE, 10)
+        self.text_fps.draw()
 
         self.rendering_time = timeit.default_timer() - start_time
 
@@ -443,8 +452,12 @@ class GameMain(arcade.Window):
             x = t.timetuple()
             filename = f"ss_{x[0]:04d}-{x[1]:02d}-{x[2]:02d}_{x[3]:02d}-{x[4]:02d}-{x[5]:02d}.png"
             pyglet.image.get_buffer_manager().get_color_buffer().save('screenshot/' + filename)
+        elif key == arcade.key.M:  # toggle grid display window
+            self.show_grid_display = not self.show_grid_display
         elif key == arcade.key.Q:
             self.isGamePlaying = False
+            time.sleep(1)
+            self.close()
         elif self.tanuki.isJumping or self.tanuki.isDying:
             return  # nothing can be done
         elif self.tanuki.isGoingUpDown:
